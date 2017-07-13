@@ -1,0 +1,26 @@
+        r1 = (r1 - 500)/500.0
+        r1[r1 == -1.0] = -20
+        # print(r1)
+        r1 = np.sum(r1)
+        # print('r1',r1)
+        r2 = (1-(energy_cost / energy_cost_max))*20.0
+        # print('r2',r2)
+        reward = r1+r2
+
+收敛之后基站趋于全部关闭。可能是因为r2太小了。 2017 6-21 9:50
+
+
+        r1 = (r1 - 500)/500.0
+        r1[r1 == -1.0] = -20
+        # print(r1)
+        r1 = np.sum(r1)
+        # print('r1',r1)
+        r2 = (1-(energy_cost / energy_cost_max))*40.0
+        # print('r2',r2)
+        reward = r1+r2
+效果比之前好很多 2017 6-21 11:02
+问题：无法衡量EE的好坏，没有对比方案
+对比方案：
+有电的时候开，没电的时候关
+
+
