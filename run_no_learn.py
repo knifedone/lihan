@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import algorithm_naive_1 as naive
 import sys
-
+step=200
 env = environment(number_of_sbs=3, random=False)
 temp=env.bs_list.copy()# 定义使用 gym 库中的那一个环境
 env_naive = naive.environment(bs_list=temp)
@@ -23,7 +23,7 @@ ep_r_total = []
 count_time = 0
 energy = []
 energy_naive=[]
-EE_rate_total = np.zeros(50)
+EE_rate_total = np.zeros(step)
 EE_rate_mean = []
 counter = 0
 mean_min = 10
@@ -33,7 +33,9 @@ user=[]
 bs_1=[]
 bs_2=[]
 bs_3=[]
-bs_greedy=[]
+bs_1_greedy=[]
+bs_2_greedy=[]
+bs_3_greedy=[]
 bs_3_battery=[]
 bs_3_battery_greedy=[]
 env_mbs_load=[]
@@ -42,9 +44,9 @@ observation = env.reset()
 
 observation_naive = env_naive.reset(bs_list=env.bs_list.copy())
 ep_r = 0
-RL.get_parameter(model_path=sys.path[0] + '/RL_brain_count_time' + '126000' + '.ckpt')
+RL.get_parameter(model_path=sys.path[0] + '/RL_brain_count_time' + '70000' + '.ckpt')
 
-for i in range(50):
+for i in range(step):
     action=RL.choose_action(observation)
     action_naive=env_naive.choose_action()
     observation_, energy_cost, energy_cost_max, temp = env.step(action, beta=-8, lambda_=0.8)  # 获取下一个 state
@@ -56,7 +58,9 @@ for i in range(50):
     bs_1.append(env.bs_list.iloc[0,2])
     bs_2.append(env.bs_list.iloc[1,2])
     bs_3.append(env.bs_list.iloc[2,2])
-    bs_greedy.append(env_naive.bs_list.iloc[0,2])
+    bs_1_greedy.append(env_naive.bs_list.iloc[0,2])
+    bs_2_greedy.append(env_naive.bs_list.iloc[1,2])
+    bs_3_greedy.append(env_naive.bs_list.iloc[2,2])
     # print(env.bs_list.iloc[1,3],env_naive.bs_list.iloc[1,3])
     bs_3_battery.append(env.bs_list.iloc[2,3])
     bs_3_battery_greedy.append(env_naive.bs_list.iloc[2,3])
@@ -66,14 +70,14 @@ for i in range(50):
     observation_naive = observation_naive_
 
 
-x=np.linspace(0,50,1000)
+x=np.linspace(0,step,1000)
 for t in x:
     y.append(0.5 * np.sin(float(t/8.0)+1.5*np.pi) + 0.5)
 user=[x/100.0 for x in user]
 plt.figure(figsize=(8,4))
 # plt.plot(x,y,label="$energy$",color="red",linewidth=2)
-plt.plot(bs_1,label='bs_1')
-plt.plot(bs_greedy,label='bs_greedy')
+plt.plot(bs_3,label='bs_1')
+plt.plot(bs_3_greedy,label='bs_greedy')
 # plt.plot(user,label='user_number')
 # plt.plot(bs_3_battery,label='bs_3_battery')
 # plt.plot(bs_3_battery_greedy,label='bs_3_battery_greedy')

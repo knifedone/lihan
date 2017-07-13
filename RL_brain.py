@@ -253,34 +253,42 @@ class DuelingDQN:
     def _build_net(self):
         def build_layers(s, c_names, n_l1, w_initializer, b_initializer):
             with tf.variable_scope('l1'):
-                w1 = tf.get_variable('w1', [self.n_features, 20], initializer=w_initializer, collections=c_names)
-                b1 = tf.get_variable('b1', [1, 20], initializer=b_initializer, collections=c_names)
+                w1 = tf.get_variable('w1', [self.n_features, 50], initializer=w_initializer, collections=c_names)
+                b1 = tf.get_variable('b1', [1, 50], initializer=b_initializer, collections=c_names)
                 l1 = tf.nn.relu(tf.matmul(s, w1) + b1)
             with tf.variable_scope('l2'):
-                w2 = tf.get_variable('w2', [20, n_l1], initializer=w_initializer, collections=c_names)
-                b2 = tf.get_variable('b2', [1, n_l1], initializer=b_initializer, collections=c_names)
+                w2 = tf.get_variable('w2', [50, 50], initializer=w_initializer, collections=c_names)
+                b2 = tf.get_variable('b2', [1, 50], initializer=b_initializer, collections=c_names)
                 l2 = tf.nn.relu(tf.matmul(l1, w2) + b2)
+            with tf.variable_scope('l3'):
+                w3 = tf.get_variable('w3', [50, n_l1], initializer=w_initializer, collections=c_names)
+                b3 = tf.get_variable('b3', [1, n_l1], initializer=b_initializer, collections=c_names)
+                l3 = tf.nn.relu(tf.matmul(l2, w3) + b3)
+            with tf.variable_scope('l4'):
+                w4 = tf.get_variable('w4', [50, n_l1], initializer=w_initializer, collections=c_names)
+                b4 = tf.get_variable('b4', [1, n_l1], initializer=b_initializer, collections=c_names)
+                l4 = tf.nn.relu(tf.matmul(l3, w4) + b4)
 
 
             if self.dueling:
                 # Dueling DQN
                 with tf.variable_scope('Value'):
-                    w2 = tf.get_variable('w2', [n_l1, 1], initializer=w_initializer, collections=c_names)
-                    b2 = tf.get_variable('b2', [1, 1], initializer=b_initializer, collections=c_names)
-                    self.V = tf.matmul(l2, w2) + b2
+                    w5 = tf.get_variable('w5', [n_l1, 1], initializer=w_initializer, collections=c_names)
+                    b5 = tf.get_variable('b5', [1, 1], initializer=b_initializer, collections=c_names)
+                    self.V = tf.matmul(l4, w5) + b5
 
                 with tf.variable_scope('Advantage'):
-                    w2 = tf.get_variable('w2', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
-                    b2 = tf.get_variable('b2', [1, self.n_actions], initializer=b_initializer, collections=c_names)
-                    self.A = tf.matmul(l2, w2) + b2
+                    w5 = tf.get_variable('w5', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
+                    b5 = tf.get_variable('b5', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+                    self.A = tf.matmul(l4, w5) + b5
 
                 with tf.variable_scope('Q'):
                     out = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))     # Q = V(s) + A(s,a)
             else:
                 with tf.variable_scope('Q'):
-                    w2 = tf.get_variable('w2', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
-                    b2 = tf.get_variable('b2', [1, self.n_actions], initializer=b_initializer, collections=c_names)
-                    out = tf.matmul(l2, w2) + b2
+                    w5 = tf.get_variable('w2', [n_l1, self.n_actions], initializer=w_initializer, collections=c_names)
+                    b5 = tf.get_variable('b2', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+                    out = tf.matmul(l4, w5) + b5
 
             return out
 
@@ -289,7 +297,7 @@ class DuelingDQN:
         self.q_target = tf.placeholder(tf.float32, [None, self.n_actions], name='Q_target')  # for calculating loss
         with tf.variable_scope('eval_net'):
             c_names, n_l1, w_initializer, b_initializer = \
-                ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], 20, \
+                ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], 50, \
                 tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
 
             self.q_eval = build_layers(self.s, c_names, n_l1, w_initializer, b_initializer)

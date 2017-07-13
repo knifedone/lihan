@@ -74,6 +74,7 @@ class environment:
     def user_association(self, x, beta):
 
         SINR_list,mbs_SINR = self.compute_SINR(x, beta)
+        # print(SINR_list,mbs_SINR)
         SINR_list=[list(i) for i in SINR_list]
         SINR_list.append(list(mbs_SINR))
         SINR_list = np.array(SINR_list)
